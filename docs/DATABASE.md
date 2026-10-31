@@ -152,3 +152,4 @@ Ensures idempotency for background reminders (>24h pending requests) without dup
 
 **Indexes:**
 - Compound unique index: `{ requestId: 1, reminderType: 1, reminderWindow: 1 }` (unique: true)
+

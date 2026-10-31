@@ -4,7 +4,7 @@ import { DEMO_USERS, ROLES } from '../constants';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Default to Admin or retrieve from localStorage
+  // Default to null so user lands on login page, or retrieve from localStorage
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('erm_auth_user');
     if (saved) {
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
         // fallback
       }
     }
-    return DEMO_USERS[0]; // Admin by default
+    return null; // Start on login page by default
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(!!currentUser);
@@ -94,3 +94,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

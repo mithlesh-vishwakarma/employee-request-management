@@ -80,3 +80,4 @@ const AssignManagerModal = ({ isOpen, onClose, employee = null }) => {
 };
 
 export default AssignManagerModal;
+

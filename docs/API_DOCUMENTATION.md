@@ -59,3 +59,4 @@ Base URL prefix: `/api/v1`
 - `GET /dashboard/admin` (Admin) - Organization stats (users, requests by status, activity counts).
 - `GET /dashboard/manager` (Manager) - Manager stats (team size, pending approvals, overdue count).
 - `GET /dashboard/employee` (Employee) - Employee stats (total submitted, approved, pending, rejected).
+

@@ -12,3 +12,4 @@ This directory contains the Postman API collection for testing all endpoints in 
 4. `Employee` - Submit requests, My requests, Dashboard
 5. `Approvals & Comments` - Approve, Reject, Comments
 6. `Notifications` - List notifications, Mark read, Mark all read
+

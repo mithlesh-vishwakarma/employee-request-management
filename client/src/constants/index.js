@@ -306,3 +306,4 @@ export const INITIAL_ACTIVITY_LOGS = [
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
   },
 ];
+
