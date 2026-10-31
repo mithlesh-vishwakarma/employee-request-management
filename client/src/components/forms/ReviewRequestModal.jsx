@@ -77,11 +77,10 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
                 setDecision('approve');
                 setError('');
               }}
-              className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all ${
-                decision === 'approve'
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm ring-1 ring-emerald-500'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-              }`}
+              className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all ${decision === 'approve'
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm ring-1 ring-emerald-500'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                }`}
             >
               <Check className="w-4 h-4 text-emerald-600" />
               Approve Request
@@ -93,11 +92,10 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
                 setDecision('reject');
                 setError('');
               }}
-              className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all ${
-                decision === 'reject'
-                  ? 'border-rose-500 bg-rose-50 text-rose-800 shadow-sm ring-1 ring-rose-500'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-              }`}
+              className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all ${decision === 'reject'
+                ? 'border-rose-500 bg-rose-50 text-rose-800 shadow-sm ring-1 ring-rose-500'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                }`}
             >
               <X className="w-4 h-4 text-rose-600" />
               Reject Request
@@ -128,11 +126,10 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
                 ? 'State the reason for rejecting this request (required)...'
                 : 'Add optional feedback or approval remarks...'
             }
-            className={`w-full text-xs p-3 bg-white border rounded-xl focus:outline-none focus:ring-2 transition-all ${
-              error
-                ? 'border-rose-300 focus:ring-rose-400'
-                : 'border-slate-200 focus:ring-indigo-500'
-            }`}
+            className={`w-full text-xs p-3 bg-white border rounded-xl focus:outline-none focus:ring-2 transition-all ${error
+              ? 'border-rose-300 focus:ring-rose-400'
+              : 'border-slate-200 focus:ring-indigo-500'
+              }`}
           />
           {error && <p className="text-xs text-rose-600 mt-1 font-medium">{error}</p>}
         </div>
@@ -148,11 +145,10 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
           </button>
           <button
             type="submit"
-            className={`px-5 py-2 text-xs font-semibold text-white rounded-lg transition-colors shadow-sm ${
-              decision === 'approve'
-                ? 'bg-emerald-600 hover:bg-emerald-700'
-                : 'bg-rose-600 hover:bg-rose-700'
-            }`}
+            className={`px-5 py-2 text-xs font-semibold text-white rounded-lg transition-colors shadow-sm ${decision === 'approve'
+              ? 'bg-emerald-600 hover:bg-emerald-700'
+              : 'bg-rose-600 hover:bg-rose-700'
+              }`}
           >
             Confirm {decision === 'approve' ? 'Approval' : 'Rejection'}
           </button>
@@ -163,4 +159,3 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
 };
 
 export default ReviewRequestModal;
-
