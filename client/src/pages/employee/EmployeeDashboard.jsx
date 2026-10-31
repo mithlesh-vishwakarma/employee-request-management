@@ -27,7 +27,8 @@ const EmployeeDashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   // Filter requests submitted by this employee
-  const myRequests = requests.filter((r) => r.employeeId === currentUser?.id);
+  const myId = String(currentUser?._id || currentUser?.id);
+  const myRequests = requests.filter((r) => !r.employeeId || String(r.employeeId) === myId);
 
   const pendingRequests = myRequests.filter((r) => r.status === REQUEST_STATUS.PENDING);
   const approvedRequests = myRequests.filter((r) => r.status === REQUEST_STATUS.APPROVED);
@@ -47,7 +48,7 @@ const EmployeeDashboard = () => {
           <p className="text-xs text-slate-300 mt-1 flex items-center gap-2">
             <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>
-              Assigned Direct Manager: <strong>{currentUser?.managerName || 'David Vance (Manager)'}</strong>
+              Assigned Direct Manager: <strong>{currentUser?.managerId?.name || currentUser?.managerName || 'Assigned Direct Manager'}</strong>
             </span>
           </p>
         </div>

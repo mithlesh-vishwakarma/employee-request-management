@@ -1,29 +1,60 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { DEMO_USERS, ROLES } from '../../constants';
-import { Layers, ShieldCheck, ArrowRight, Lock, Mail } from 'lucide-react';
+import { ROLES } from '../../constants';
+import { Layers, ShieldCheck, ArrowRight, Lock, Mail, AlertCircle, Loader2, KeyRound } from 'lucide-react';
+
+const SEEDED_CREDENTIALS = [
+  { role: 'Admin', email: 'admin@enterprise.com', label: 'Full System Control' },
+  { role: 'Manager', email: 'manager@enterprise.com', label: 'Team Approvals' },
+  { role: 'Employee', email: 'employee@enterprise.com', label: 'Submit & Track' },
+];
 
 const Login = () => {
   const [email, setEmail] = useState('admin@enterprise.com');
   const [password, setPassword] = useState('Password123!');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    const result = await login(email, password);
-    if (result?.success) {
-      redirectToRoleDashboard(result.user.role);
+    if (e) e.preventDefault();
+    setErrorMessage('');
+    setSubmitting(true);
+
+    try {
+      const result = await login(email, password);
+      if (result?.success) {
+        redirectToRoleDashboard(result.user.role);
+      } else {
+        setErrorMessage(result?.error || 'Invalid email or password');
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Connection error. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleQuickLogin = async (demoUser) => {
-    setEmail(demoUser.email);
+  const fillAndLogin = async (credEmail) => {
+    setEmail(credEmail);
     setPassword('Password123!');
-    const result = await login(demoUser.email, 'Password123!');
-    if (result?.success) {
-      redirectToRoleDashboard(result.user.role);
+    setErrorMessage('');
+    setSubmitting(true);
+
+    try {
+      const result = await login(credEmail, 'Password123!');
+      if (result?.success) {
+        redirectToRoleDashboard(result.user.role);
+      } else {
+        setErrorMessage(result?.error || 'Login failed');
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Connection error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -48,6 +79,13 @@ const Login = () => {
 
       {/* Main Login Card */}
       <div className="bg-white/95 backdrop-blur-md py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-100">
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         <form onSubmit={handleLoginSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
@@ -85,46 +123,48 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 mt-2"
+            disabled={submitting}
+            className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-semibold rounded-xl shadow-md shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 mt-2"
           >
-            <span>Sign In to Dashboard</span>
-            <ArrowRight className="w-4 h-4" />
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Authenticating with Atlas...</span>
+              </>
+            ) : (
+              <>
+                <span>Sign In to Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 
-        {/* Demo Quick Logins */}
+        {/* Database Seeded Accounts Quick-Fill */}
         <div className="mt-8 pt-6 border-t border-slate-100">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center mb-3">
-            Quick 1-Click Demo Logins
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+              <KeyRound className="w-3.5 h-3.5 text-indigo-500" />
+              Atlas Database Demo Logins
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">pwd: Password123!</span>
+          </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickLogin(DEMO_USERS[0])}
-              className="p-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl text-center transition-all group"
-            >
-              <span className="block text-[11px] font-bold text-purple-700">Admin</span>
-              <span className="block text-[9px] text-purple-500 truncate">Full System</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickLogin(DEMO_USERS[1])}
-              className="p-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-center transition-all group"
-            >
-              <span className="block text-[11px] font-bold text-blue-700">Manager</span>
-              <span className="block text-[9px] text-blue-500 truncate">Team Approvals</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickLogin(DEMO_USERS[3])}
-              className="p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-center transition-all group"
-            >
-              <span className="block text-[11px] font-bold text-emerald-700">Employee</span>
-              <span className="block text-[9px] text-emerald-500 truncate">Submit & Track</span>
-            </button>
+            {SEEDED_CREDENTIALS.map((cred) => (
+              <button
+                key={cred.role}
+                type="button"
+                disabled={submitting}
+                onClick={() => fillAndLogin(cred.email)}
+                className="p-2.5 bg-slate-50 hover:bg-indigo-50/70 border border-slate-200 hover:border-indigo-300 rounded-xl text-center transition-all group disabled:opacity-50"
+              >
+                <span className="block text-[11px] font-bold text-slate-800 group-hover:text-indigo-600">
+                  {cred.role}
+                </span>
+                <span className="block text-[9px] text-slate-500 truncate">{cred.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>

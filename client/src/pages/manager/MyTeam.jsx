@@ -7,7 +7,8 @@ const MyTeam = () => {
   const { currentUser } = useAuth();
   const { users, requests } = useRequests();
 
-  const myTeam = users.filter((u) => u.managerId === currentUser?.id && u.isActive);
+  const currentUserId = String(currentUser?._id || currentUser?.id);
+  const myTeam = users.filter((u) => String(u.managerId) === currentUserId && u.isActive);
 
   return (
     <div className="space-y-6">
@@ -22,7 +23,8 @@ const MyTeam = () => {
       {/* Grid of Team Members */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {myTeam.map((emp) => {
-          const empRequests = requests.filter((r) => r.employeeId === emp.id);
+          const empId = String(emp.id || emp._id);
+          const empRequests = requests.filter((r) => String(r.employeeId) === empId);
           const empPending = empRequests.filter((r) => r.status === 'pending').length;
 
           return (

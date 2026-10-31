@@ -21,7 +21,7 @@ const AssignManagerModal = ({ isOpen, onClose, employee = null }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!selectedManagerId) return;
-    assignManager(employee.id, selectedManagerId);
+    assignManager(employee.id || employee._id, selectedManagerId);
     onClose();
   };
 

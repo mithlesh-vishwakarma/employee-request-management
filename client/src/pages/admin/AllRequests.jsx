@@ -20,12 +20,13 @@ const AllRequests = () => {
 
   // Filter requests
   const filteredRequests = useMemo(() => {
+    const q = search.toLowerCase();
     return requests.filter((r) => {
       const matchSearch =
-        r.title.toLowerCase().includes(search.toLowerCase()) ||
-        r.id.toLowerCase().includes(search.toLowerCase()) ||
-        r.employeeName.toLowerCase().includes(search.toLowerCase()) ||
-        r.managerName?.toLowerCase().includes(search.toLowerCase());
+        (r.title || '').toLowerCase().includes(q) ||
+        (r.id || '').toLowerCase().includes(q) ||
+        (r.employeeName || '').toLowerCase().includes(q) ||
+        (r.managerName || '').toLowerCase().includes(q);
 
       const matchStatus = selectedStatus === 'all' || r.status === selectedStatus;
       const matchCategory = selectedCategory === 'all' || r.category === selectedCategory;

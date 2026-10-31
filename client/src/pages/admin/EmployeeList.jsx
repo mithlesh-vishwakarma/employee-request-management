@@ -82,19 +82,26 @@ const EmployeeList = () => {
   const columns = [
     {
       header: 'Employee Profile',
-      render: (u) => (
-        <div className="flex items-center gap-3">
-          <img
-            src={u.avatar}
-            alt={u.name}
-            className="w-9 h-9 rounded-full object-cover border border-slate-200"
-          />
-          <div>
-            <span className="font-bold text-slate-900 block text-xs">{u.name}</span>
-            <span className="text-[11px] text-slate-400">{u.email}</span>
+      render: (u) => {
+        const avatar =
+          u.avatar ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            u.name
+          )}&background=6366f1&color=fff`;
+        return (
+          <div className="flex items-center gap-3">
+            <img
+              src={avatar}
+              alt={u.name}
+              className="w-9 h-9 rounded-full object-cover border border-slate-200"
+            />
+            <div>
+              <span className="font-bold text-slate-900 block text-xs">{u.name}</span>
+              <span className="text-[11px] text-slate-400">{u.email}</span>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       header: 'Emp ID',
@@ -252,7 +259,7 @@ const EmployeeList = () => {
         onClose={() => setStatusConfirmUser(null)}
         onConfirm={() => {
           if (statusConfirmUser) {
-            toggleEmployeeStatus(statusConfirmUser.id);
+            toggleEmployeeStatus(statusConfirmUser.id || statusConfirmUser._id);
           }
         }}
         title={statusConfirmUser?.isActive ? 'Deactivate Account' : 'Activate Account'}

@@ -10,7 +10,6 @@ import {
   CheckCheck,
   LogOut,
   Clock,
-  Sparkles,
   ChevronDown,
   Shield,
   Briefcase,
@@ -18,7 +17,7 @@ import {
 } from 'lucide-react';
 
 const Header = ({ onMenuClick }) => {
-  const { currentUser, role, logout, switchDemoRole } = useAuth();
+  const { currentUser, role, logout } = useAuth();
   const { notifications, markAsRead, markAllAsRead } = useNotifications();
   const { trigger24hReminder } = useRequests();
 
@@ -28,9 +27,11 @@ const Header = ({ onMenuClick }) => {
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
+  const currentUserId = currentUser?._id || currentUser?.id;
+
   // Filter notifications for logged-in user or general
   const userNotifs = notifications.filter(
-    (n) => !n.recipientId || n.recipientId === currentUser?.id
+    (n) => !n.recipientId || String(n.recipientId) === String(currentUserId)
   );
   const unreadCount = userNotifs.filter((n) => !n.isRead).length;
 
@@ -48,52 +49,38 @@ const Header = ({ onMenuClick }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const avatarUrl =
+    currentUser?.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      currentUser?.name || 'User'
+    )}&background=4f46e5&color=fff`;
+
   return (
     <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6">
-      {/* Left: Mobile hamburger & breadcrumb */}
+      {/* Left: Mobile hamburger & Organization info */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
           className="lg:hidden p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+          aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Demo Fast Switcher - allows switching roles without logging out */}
-        <div className="hidden md:flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs">
-          <span className="text-[11px] font-semibold text-slate-400 px-2 uppercase">
-            Test Role:
-          </span>
-          <button
-            onClick={() => switchDemoRole(ROLES.ADMIN)}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+        <div className="hidden sm:flex items-center gap-2 text-xs">
+          <span className="font-semibold text-slate-700">{currentUser?.department || 'Enterprise'}</span>
+          <span className="text-slate-300">•</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
               role === ROLES.ADMIN
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white'
+                ? 'bg-purple-100 text-purple-700'
+                : role === ROLES.MANAGER
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-emerald-100 text-emerald-700'
             }`}
           >
-            Admin
-          </button>
-          <button
-            onClick={() => switchDemoRole(ROLES.MANAGER)}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
-              role === ROLES.MANAGER
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white'
-            }`}
-          >
-            Manager
-          </button>
-          <button
-            onClick={() => switchDemoRole(ROLES.EMPLOYEE)}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
-              role === ROLES.EMPLOYEE
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white'
-            }`}
-          >
-            Employee
-          </button>
+            {role || 'User'}
+          </span>
         </div>
       </div>
 
@@ -106,7 +93,7 @@ const Header = ({ onMenuClick }) => {
           title="Simulate 24h background reminder cron job"
         >
           <Clock className="w-3.5 h-3.5 text-amber-600" />
-          <span>Simulate 24h Cron</span>
+          <span>Run 24h Reminder Check</span>
         </button>
 
         {/* Notifications Popover */}
@@ -137,7 +124,7 @@ const Header = ({ onMenuClick }) => {
                 </div>
                 {unreadCount > 0 && (
                   <button
-                    onClick={() => markAllAsRead(currentUser?.id)}
+                    onClick={() => markAllAsRead()}
                     className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-semibold"
                   >
                     <CheckCheck className="w-3.5 h-3.5" /> Mark all read
@@ -149,8 +136,8 @@ const Header = ({ onMenuClick }) => {
                 {userNotifs.length > 0 ? (
                   userNotifs.map((notif) => (
                     <div
-                      key={notif.id}
-                      onClick={() => markAsRead(notif.id)}
+                      key={notif._id || notif.id}
+                      onClick={() => markAsRead(notif._id || notif.id)}
                       className={`p-3.5 hover:bg-slate-50 cursor-pointer transition-colors ${
                         !notif.isRead ? 'bg-indigo-50/40' : ''
                       }`}
@@ -185,13 +172,13 @@ const Header = ({ onMenuClick }) => {
             className="flex items-center gap-2.5 p-1.5 hover:bg-slate-100 rounded-xl transition-colors"
           >
             <img
-              src={currentUser?.avatar}
-              alt={currentUser?.name}
+              src={avatarUrl}
+              alt={currentUser?.name || 'User avatar'}
               className="w-8 h-8 rounded-full object-cover border border-slate-200"
             />
             <div className="hidden sm:block text-left text-xs leading-tight">
               <span className="font-semibold text-slate-800 block">{currentUser?.name}</span>
-              <span className="text-slate-400 text-[11px] capitalize">{currentUser?.department}</span>
+              <span className="text-slate-400 text-[11px] capitalize">{currentUser?.department || currentUser?.role}</span>
             </div>
             <ChevronDown className="w-4 h-4 text-slate-400" />
           </button>

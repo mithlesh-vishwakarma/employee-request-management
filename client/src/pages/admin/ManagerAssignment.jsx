@@ -64,7 +64,16 @@ const ManagerAssignment = () => {
       {/* Managers & Assigned Teams Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {managers.map((manager) => {
-          const directReports = employees.filter((e) => e.managerId === manager.id);
+          const managerId = String(manager.id || manager._id);
+          const directReports = employees.filter(
+            (e) => String(e.managerId?._id || e.managerId) === managerId
+          );
+
+          const managerAvatar =
+            manager.avatar ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              manager.name
+            )}&background=3b82f6&color=fff`;
 
           return (
             <div
@@ -75,7 +84,7 @@ const ManagerAssignment = () => {
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                   <img
-                    src={manager.avatar}
+                    src={managerAvatar}
                     alt={manager.name}
                     className="w-12 h-12 rounded-full object-cover border-2 border-indigo-100"
                   />

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import StatusBadge from '../common/StatusBadge';
 import PriorityBadge from '../common/PriorityBadge';
 import { formatDate, formatDateTime, isOverdue24h } from '../../utils/formatters';
 import { useRequests } from '../../context/RequestContext';
+import { getCommentsApi } from '../../services/requestApi';
 import {
   Calendar,
   Clock,
@@ -14,21 +15,68 @@ import {
   AlertCircle,
   MessageSquare,
   Send,
+  Loader2,
 } from 'lucide-react';
 
 const RequestDetailsModal = ({ isOpen, onClose, request }) => {
   const [commentInput, setCommentInput] = useState('');
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
   const { addComment } = useRequests();
+
+  const reqId = request?._id || request?.id;
+
+  // Fetch comments when modal opens
+  useEffect(() => {
+    if (!isOpen || !reqId) {
+      setComments([]);
+      return;
+    }
+
+    let isMounted = true;
+    const fetchComments = async () => {
+      setLoadingComments(true);
+      try {
+        const res = await getCommentsApi(reqId);
+        if (isMounted && res?.data) {
+          setComments(res.data);
+        }
+      } catch (err) {
+        console.warn('Failed to load comments:', err.message);
+      } finally {
+        if (isMounted) setLoadingComments(false);
+      }
+    };
+
+    fetchComments();
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, reqId]);
 
   if (!request) return null;
 
   const isOverdue = isOverdue24h(request.submittedAt, request.status);
 
-  const handleSendComment = (e) => {
+  const handleSendComment = async (e) => {
     e.preventDefault();
-    if (!commentInput.trim()) return;
-    addComment(request.id, commentInput);
-    setCommentInput('');
+    if (!commentInput.trim() || submittingComment) return;
+
+    setSubmittingComment(true);
+    try {
+      await addComment(reqId, commentInput);
+      setCommentInput('');
+      // Reload comments
+      const res = await getCommentsApi(reqId);
+      if (res?.data) {
+        setComments(res.data);
+      }
+    } catch (err) {
+      // handled in context
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   return (
@@ -139,23 +187,32 @@ const RequestDetailsModal = ({ isOpen, onClose, request }) => {
         <div className="pt-4 border-t border-slate-100">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <MessageSquare className="w-4 h-4 text-slate-500" />
-            Activity & Comments ({request.comments?.length || 0})
+            Activity & Comments ({comments.length})
           </h4>
 
           {/* Comment list */}
           <div className="space-y-3 max-h-48 overflow-y-auto mb-3">
-            {request.comments && request.comments.length > 0 ? (
-              request.comments.map((c) => (
-                <div key={c.id} className="p-3 bg-slate-50 rounded-lg text-xs space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-800">
-                      {c.authorName} <span className="font-normal text-slate-400">({c.authorRole})</span>
-                    </span>
-                    <span className="text-slate-400">{formatDateTime(c.createdAt)}</span>
+            {loadingComments ? (
+              <div className="py-6 text-center text-slate-400 flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+                <span>Loading discussion thread...</span>
+              </div>
+            ) : comments.length > 0 ? (
+              comments.map((c) => {
+                const author = c.authorId?.name || c.authorName || 'User';
+                const role = c.authorId?.role || c.authorRole || 'member';
+                return (
+                  <div key={c._id || c.id} className="p-3 bg-slate-50 rounded-lg text-xs space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-slate-800">
+                        {author} <span className="font-normal text-slate-400">({role})</span>
+                      </span>
+                      <span className="text-slate-400">{formatDateTime(c.createdAt)}</span>
+                    </div>
+                    <p className="text-slate-600">{c.message}</p>
                   </div>
-                  <p className="text-slate-600">{c.message}</p>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className="text-xs text-slate-400 italic">No comments posted yet.</p>
             )}
@@ -172,11 +229,15 @@ const RequestDetailsModal = ({ isOpen, onClose, request }) => {
             />
             <button
               type="submit"
-              disabled={!commentInput.trim()}
+              disabled={!commentInput.trim() || submittingComment}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-40 transition-colors flex items-center gap-1"
             >
-              <Send className="w-3.5 h-3.5" />
-              Post
+              {submittingComment ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+              <span>Post</span>
             </button>
           </form>
         </div>

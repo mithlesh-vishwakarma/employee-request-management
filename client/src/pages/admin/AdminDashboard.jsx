@@ -131,27 +131,31 @@ const AdminDashboard = () => {
           </div>
 
           <div className="divide-y divide-slate-100">
-            {requests.slice(0, 5).map((req) => (
-              <div
-                key={req.id}
-                onClick={() => setSelectedRequest(req)}
-                className="py-3.5 flex items-center justify-between hover:bg-slate-50/70 p-2 rounded-xl cursor-pointer transition-colors"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-slate-900">{req.title}</span>
-                    <PriorityBadge priority={req.priority} />
+            {requests.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-8 text-center">No employee requests submitted yet.</p>
+            ) : (
+              requests.slice(0, 5).map((req) => (
+                <div
+                  key={req.id}
+                  onClick={() => setSelectedRequest(req)}
+                  className="py-3.5 flex items-center justify-between hover:bg-slate-50/70 p-2 rounded-xl cursor-pointer transition-colors"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs text-slate-900">{req.title}</span>
+                      <PriorityBadge priority={req.priority} />
+                    </div>
+                    <div className="text-[11px] text-slate-500">
+                      {req.employeeName} • {req.category} • Manager: {req.managerName}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-slate-500">
-                    {req.employeeName} • {req.category} • Manager: {req.managerName}
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={req.status} />
+                  <div className="flex items-center gap-3">
+                    <StatusBadge status={req.status} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -163,25 +167,29 @@ const AdminDashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {Object.entries(categoryCounts).map(([cat, count]) => {
-              const percentage = totalRequests > 0 ? Math.round((count / totalRequests) * 100) : 0;
-              return (
-                <div key={cat} className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>{cat}</span>
-                    <span>
-                      {count} ({percentage}%)
-                    </span>
+            {Object.keys(categoryCounts).length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-2">No category data recorded yet.</p>
+            ) : (
+              Object.entries(categoryCounts).map(([cat, count]) => {
+                const percentage = totalRequests > 0 ? Math.round((count / totalRequests) * 100) : 0;
+                return (
+                  <div key={cat} className="space-y-1">
+                    <div className="flex justify-between text-xs font-semibold text-slate-700">
+                      <span>{cat}</span>
+                      <span>
+                        {count} ({percentage}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-indigo-600 rounded-full transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* Activity Logs preview */}
@@ -198,17 +206,21 @@ const AdminDashboard = () => {
               </button>
             </div>
             <div className="space-y-2.5">
-              {activityLogs.slice(0, 3).map((act) => (
-                <div key={act.id} className="text-[11px] p-2.5 rounded-lg bg-slate-50 space-y-0.5">
-                  <div className="flex items-center justify-between text-slate-800 font-semibold">
-                    <span>{act.actorName}</span>
-                    <span className="text-[10px] text-slate-400 font-normal">
-                      {formatDateTime(act.createdAt)}
-                    </span>
+              {activityLogs.length === 0 ? (
+                <p className="text-xs text-slate-400 italic py-2">No activity recorded yet.</p>
+              ) : (
+                activityLogs.slice(0, 3).map((act) => (
+                  <div key={act.id} className="text-[11px] p-2.5 rounded-lg bg-slate-50 space-y-0.5">
+                    <div className="flex items-center justify-between text-slate-800 font-semibold">
+                      <span>{act.actorName}</span>
+                      <span className="text-[10px] text-slate-400 font-normal">
+                        {formatDateTime(act.createdAt)}
+                      </span>
+                    </div>
+                    <p className="text-slate-600 line-clamp-1">{act.description}</p>
                   </div>
-                  <p className="text-slate-600 line-clamp-1">{act.description}</p>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useState } from 'react';
-import { INITIAL_NOTIFICATIONS } from '../constants';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+  getNotificationsApi,
+  getUnreadCountApi,
+  markNotificationReadApi,
+  markAllNotificationsReadApi,
+} from '../services/notificationApi';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [toasts, setToasts] = useState([]);
 
   // Toast alert trigger
@@ -20,46 +26,66 @@ export const NotificationProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const markAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+  // Fetch real notifications from database
+  const refreshNotifications = async () => {
+    const token = localStorage.getItem('erm_token');
+    if (!token) return;
+
+    try {
+      const [listRes, countRes] = await Promise.all([
+        getNotificationsApi({ limit: 20 }),
+        getUnreadCountApi(),
+      ]);
+
+      if (listRes?.data) {
+        setNotifications(listRes.data);
+      }
+      if (countRes?.data) {
+        setUnreadCount(countRes.data.unreadCount || 0);
+      }
+    } catch (err) {
+      // ignore if unauthenticated
+    }
   };
 
-  const markAllAsRead = (userId) => {
-    setNotifications((prev) =>
-      prev.map((n) =>
-        !userId || n.recipientId === userId ? { ...n, isRead: true } : n
-      )
-    );
-    showToast('All notifications marked as read', 'success');
+  useEffect(() => {
+    refreshNotifications();
+  }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      await markNotificationReadApi(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id || n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (err) {
+      console.warn('Failed to mark notification read:', err.message);
+    }
   };
 
-  const addNotification = ({ recipientId, title, message, type = 'general', requestId }) => {
-    const newNotif = {
-      id: `notif-${Date.now()}`,
-      recipientId,
-      requestId,
-      title,
-      message,
-      type,
-      isRead: false,
-      createdAt: new Date().toISOString(),
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
-    showToast(title, type === 'request_reminder' ? 'warning' : 'info');
+  const markAllAsRead = async () => {
+    try {
+      await markAllNotificationsReadApi();
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+      showToast('All notifications marked as read', 'success');
+    } catch (err) {
+      console.warn('Failed to mark all read:', err.message);
+    }
   };
 
   return (
     <NotificationContext.Provider
       value={{
         notifications,
+        unreadCount,
         toasts,
         showToast,
         removeToast,
         markAsRead,
         markAllAsRead,
-        addNotification,
+        refreshNotifications,
       }}
     >
       {children}
@@ -74,4 +100,3 @@ export const useNotifications = () => {
   }
   return context;
 };
-

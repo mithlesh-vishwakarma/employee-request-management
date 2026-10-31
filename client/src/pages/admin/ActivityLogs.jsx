@@ -11,11 +11,12 @@ const ActivityLogs = () => {
   const [selectedAction, setSelectedAction] = useState('all');
 
   const filteredLogs = useMemo(() => {
+    const q = search.toLowerCase();
     return activityLogs.filter((log) => {
       const matchSearch =
-        log.actorName.toLowerCase().includes(search.toLowerCase()) ||
-        log.description.toLowerCase().includes(search.toLowerCase()) ||
-        (log.entityId && log.entityId.toLowerCase().includes(search.toLowerCase()));
+        (log.actorName || '').toLowerCase().includes(q) ||
+        (log.description || '').toLowerCase().includes(q) ||
+        (log.entityId && String(log.entityId).toLowerCase().includes(q));
 
       const matchAction = selectedAction === 'all' || log.action === selectedAction;
       return matchSearch && matchAction;

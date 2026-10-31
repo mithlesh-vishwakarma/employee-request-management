@@ -25,7 +25,10 @@ const TeamRequests = () => {
 
   // Filter for requests belonging to current manager's team
   const teamRequests = useMemo(() => {
-    return requests.filter((r) => r.managerId === currentUser?.id);
+    const currentUserId = String(currentUser?._id || currentUser?.id);
+    return requests.filter(
+      (r) => !r.managerId || String(r.managerId) === currentUserId
+    );
   }, [requests, currentUser]);
 
   const filteredRequests = useMemo(() => {

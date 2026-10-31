@@ -86,3 +86,31 @@ This document tracks the progress of the Employee Request Management System, a f
 - [x] Postman API Collection: `postman/Employee-Management.postman_collection.json`
 - [x] Automated Integration Test Suite (`tests/api.test.js`): 10/10 tests passed (Health, Auth, RBAC, Requests, Approvals, 24h Scheduler idempotency)
 - [x] Full Frontend-Backend API integration (Axios client with Bearer tokens & cookies)
+
+---
+
+### Phase 4: MongoDB Atlas Live Cluster Connection & Collections
+- [x] Connected directly to MongoDB Atlas cluster (`employeemanagement.u7wafaq.mongodb.net`)
+- [x] Initialized collections and compound unique indexes via `server/src/utils/initCollections.js`:
+  - `users` (unique on `email`, sparse unique on `employeeId`, index on `managerId`)
+  - `requests` (compound indexes on `{ managerId: 1, status: 1 }`, `{ employeeId: 1, status: 1 }`, `{ status: 1, submittedAt: 1 }`)
+  - `requestcomments` (index on `requestId`)
+  - `notifications` (compound index on `{ recipientId: 1, isRead: 1 }`)
+  - `activitylogs` (indexes on `actorId`, `action`, `createdAt`)
+  - `reminderlogs` (compound unique index on `{ requestId: 1, reminderType: 1, reminderWindow: 1 }`)
+- [x] Provided standalone Admin Creation CLI (`server/src/utils/createAdmin.js`) with bcrypt password hashing
+- [x] Seeded initial corporate directory and baseline requests in MongoDB Atlas (`server/src/utils/seed.js`)
+
+---
+
+### Phase 5: Complete Mock Removal & Live State Wiring
+- [x] Emptied mock datasets from `client/src/constants/index.js` (`DEMO_USERS`, `INITIAL_REQUESTS`, `INITIAL_NOTIFICATIONS`, `INITIAL_ACTIVITY_LOGS` removed)
+- [x] Rewrote `AuthContext.jsx` with live session validation (`/auth/me`), login (`/auth/login`), and logout (`/auth/logout`)
+- [x] Rewrote `RequestContext.jsx` to load live data dynamically for Admin, Manager, and Employee roles
+- [x] Rewrote `NotificationContext.jsx` to synchronize real notifications and unread counters from MongoDB Atlas
+- [x] Rewrote `Login.jsx` to authenticate with database credentials against MongoDB Atlas with loading and error states
+- [x] Removed demo role-switching buttons from `Header.jsx`, replacing with authenticated profile and live role indicator
+- [x] Connected real-time comments in `RequestDetailsModal.jsx` using `getCommentsApi` and `addCommentApi`
+- [x] Wired supervisor assignment in `AssignManagerModal.jsx` and `ManagerAssignment.jsx` using MongoDB `_id` relations
+- [x] Verified full production client build (`npm run build --prefix client`) with zero errors
+- [x] Verified end-to-end authentication, employee management, team review queues, and personal request registers against live MongoDB Atlas cluster

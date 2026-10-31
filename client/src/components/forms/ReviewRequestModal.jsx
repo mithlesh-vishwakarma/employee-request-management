@@ -18,7 +18,7 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
 
   const isOverdue = isOverdue24h(request.submittedAt, request.status);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -28,7 +28,7 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
       return;
     }
 
-    const success = reviewRequest(request.id, {
+    const success = await reviewRequest(request.id || request._id, {
       status: decision === 'approve' ? REQUEST_STATUS.APPROVED : REQUEST_STATUS.REJECTED,
       comment: comment.trim(),
     });

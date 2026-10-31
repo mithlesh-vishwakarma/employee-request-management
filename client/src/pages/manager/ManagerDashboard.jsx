@@ -29,8 +29,13 @@ const ManagerDashboard = () => {
   const [inspectingRequest, setInspectingRequest] = useState(null);
 
   // Filter requests specifically for this manager's team
-  const teamRequests = requests.filter((r) => r.managerId === currentUser?.id);
-  const myTeam = users.filter((u) => u.managerId === currentUser?.id && u.isActive);
+  const currentUserId = String(currentUser?._id || currentUser?.id);
+  const teamRequests = requests.filter(
+    (r) => !r.managerId || String(r.managerId) === currentUserId
+  );
+  const myTeam = users.filter(
+    (u) => String(u.managerId) === currentUserId && u.isActive
+  );
 
   const pendingRequests = teamRequests.filter((r) => r.status === REQUEST_STATUS.PENDING);
   const approvedRequests = teamRequests.filter((r) => r.status === REQUEST_STATUS.APPROVED);

@@ -54,16 +54,20 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    if (employeeToEdit) {
-      updateEmployee(employeeToEdit.id, formData);
-    } else {
-      addEmployee(formData);
+    try {
+      if (employeeToEdit) {
+        await updateEmployee(employeeToEdit.id || employeeToEdit._id, formData);
+      } else {
+        await addEmployee(formData);
+      }
+      onClose();
+    } catch (err) {
+      // error handled in context
     }
-    onClose();
   };
 
   return (

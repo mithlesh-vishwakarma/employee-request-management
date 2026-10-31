@@ -24,7 +24,8 @@ const MyRequests = () => {
 
   // Filter requests belonging to this employee
   const myRequests = useMemo(() => {
-    return requests.filter((r) => r.employeeId === currentUser?.id);
+    const myId = String(currentUser?._id || currentUser?.id);
+    return requests.filter((r) => !r.employeeId || String(r.employeeId) === myId);
   }, [requests, currentUser]);
 
   const filteredRequests = useMemo(() => {

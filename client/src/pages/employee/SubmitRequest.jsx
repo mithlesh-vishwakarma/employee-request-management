@@ -29,6 +29,8 @@ const SubmitRequest = () => {
 
   const [errors, setErrors] = useState({});
 
+  const [submitting, setSubmitting] = useState(false);
+
   const validate = () => {
     const errs = {};
     if (!formData.title.trim()) {
@@ -56,16 +58,26 @@ const SubmitRequest = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || submitting) return;
 
-    submitRequest(formData);
-    navigate('/employee/requests');
+    setSubmitting(true);
+    try {
+      await submitRequest(formData);
+      navigate('/employee/requests');
+    } catch (err) {
+      // error handled by RequestContext toast
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const showDatePickers =
     formData.category === 'Leave' || formData.category === 'Work From Home';
+
+  const managerDisplay =
+    currentUser?.managerId?.name || currentUser?.managerName || 'Your Assigned Direct Manager';
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -88,7 +100,7 @@ const SubmitRequest = () => {
                 Direct Routing to Supervisor
               </span>
               <p className="text-indigo-700 text-[11px] mt-0.5">
-                This request will be routed to <strong>{currentUser?.managerName || 'David Vance (Manager)'}</strong>. 
+                This request will be routed to <strong>{managerDisplay}</strong>. 
                 Our 24-hour reminder scheduler ensures timely feedback.
               </p>
             </div>
