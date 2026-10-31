@@ -54,7 +54,7 @@ const ReviewRequestModal = ({ isOpen, onClose, request }) => {
         {/* Summary Card */}
         <div className="p-4 bg-slate-50 border border-slate-200/70 rounded-xl text-xs space-y-2">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-slate-500 uppercase">{request.id}</span>
+            <span className="font-semibold text-slate-500 uppercase">{request.category} Request</span>
             <PriorityBadge priority={request.priority} />
           </div>
           <h4 className="text-sm font-bold text-slate-900">{request.title}</h4>

@@ -114,7 +114,7 @@ const EmployeeDashboard = () => {
 
         {myRequests.length > 0 ? (
           <div className="divide-y divide-slate-100">
-            {myRequests.slice(0, 5).map((req) => (
+            {myRequests.slice(0, 5).map((req, idx) => (
               <div
                 key={req.id}
                 onClick={() => setSelectedRequest(req)}
@@ -122,6 +122,7 @@ const EmployeeDashboard = () => {
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-slate-400">#{idx + 1}</span>
                     <span className="font-bold text-xs text-slate-900">{req.title}</span>
                     <PriorityBadge priority={req.priority} />
                   </div>

@@ -155,7 +155,7 @@ const ManagerDashboard = () => {
 
           {pendingRequests.length > 0 ? (
             <div className="divide-y divide-slate-100">
-              {pendingRequests.map((req) => {
+              {pendingRequests.map((req, idx) => {
                 const isOverdue = isOverdue24h(req.submittedAt, req.status);
                 return (
                   <div
@@ -164,6 +164,7 @@ const ManagerDashboard = () => {
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-slate-400">#{idx + 1}</span>
                         <span className="font-bold text-xs text-slate-900">{req.title}</span>
                         <PriorityBadge priority={req.priority} />
                         {isOverdue && (

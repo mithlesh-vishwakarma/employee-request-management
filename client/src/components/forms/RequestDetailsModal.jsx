@@ -80,7 +80,7 @@ const RequestDetailsModal = ({ isOpen, onClose, request }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Request Details - ${request.id}`} maxWidth="max-w-2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Request Details" maxWidth="max-w-2xl">
       <div className="space-y-6">
         {/* Overdue alert if pending > 24h */}
         {isOverdue && (

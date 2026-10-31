@@ -59,9 +59,11 @@ const TeamRequests = () => {
 
   const columns = [
     {
-      header: 'ID',
-      accessor: 'id',
-      cellClassName: 'text-xs font-mono font-bold text-slate-700',
+      header: 'S.No',
+      cellClassName: 'text-xs font-mono font-bold text-slate-500 w-16',
+      render: (r, rowIdx, serialNo) => (
+        <span className="font-mono text-xs text-slate-500 font-bold">#{serialNo || rowIdx + 1}</span>
+      ),
     },
     {
       header: 'Request Title & Category',

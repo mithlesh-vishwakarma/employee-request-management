@@ -61,7 +61,9 @@ const DataTable = ({
                       col.align === 'right' ? 'text-right' : 'text-left'
                     } ${col.cellClassName || ''}`}
                   >
-                    {col.render ? col.render(item, rowIdx) : item[col.accessor]}
+                    {col.render
+                      ? col.render(item, rowIdx, startIndex + rowIdx + 1)
+                      : item[col.accessor]}
                   </td>
                 ))}
               </tr>

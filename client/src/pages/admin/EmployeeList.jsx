@@ -81,6 +81,13 @@ const EmployeeList = () => {
 
   const columns = [
     {
+      header: 'S.No',
+      cellClassName: 'text-xs font-mono font-bold text-slate-500 w-16',
+      render: (u, rowIdx, serialNo) => (
+        <span className="font-mono text-xs text-slate-500 font-bold">#{serialNo || rowIdx + 1}</span>
+      ),
+    },
+    {
       header: 'Employee Profile',
       render: (u) => {
         const avatar =

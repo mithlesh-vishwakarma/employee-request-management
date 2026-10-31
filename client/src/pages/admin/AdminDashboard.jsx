@@ -134,7 +134,7 @@ const AdminDashboard = () => {
             {requests.length === 0 ? (
               <p className="text-xs text-slate-400 italic py-8 text-center">No employee requests submitted yet.</p>
             ) : (
-              requests.slice(0, 5).map((req) => (
+              requests.slice(0, 5).map((req, idx) => (
                 <div
                   key={req.id}
                   onClick={() => setSelectedRequest(req)}
@@ -142,6 +142,7 @@ const AdminDashboard = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-slate-400">#{idx + 1}</span>
                       <span className="font-bold text-xs text-slate-900">{req.title}</span>
                       <PriorityBadge priority={req.priority} />
                     </div>
