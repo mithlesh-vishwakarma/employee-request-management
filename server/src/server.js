@@ -33,6 +33,7 @@ const startServer = async () => {
       console.log(`====================================================`);
       console.log(`🚀 Employee Request Management Backend Server Active`);
       console.log(`📡 URL: http://localhost:${PORT}`);
+      console.log(`📖 Swagger API Docs: http://localhost:${PORT}/api-docs`);
       console.log(`⚙️  Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🛡️  Health check: http://localhost:${PORT}/api/v1/health`);
       console.log(`====================================================`);

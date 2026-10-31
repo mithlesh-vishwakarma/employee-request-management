@@ -1,5 +1,10 @@
 # REST API Documentation
 
+Interactive Swagger UI documentation is live and available at:
+- **Production (Render)**: [https://employee-request-management.onrender.com/api-docs](https://employee-request-management.onrender.com/api-docs)
+- **Production Raw OpenAPI JSON**: [https://employee-request-management.onrender.com/api-docs.json](https://employee-request-management.onrender.com/api-docs.json)
+- **Local Development**: `http://localhost:5000/api-docs`
+
 Base URL prefix: `/api/v1`
 
 ---

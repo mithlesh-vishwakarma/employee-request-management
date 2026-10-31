@@ -4,15 +4,22 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
 
 import apiRoutes from './routes/index.js';
 import { errorHandler } from './middlewares/error.js';
 import { ApiError } from './utils/apiError.js';
+import { swaggerSpec } from './docs/swagger.js';
 
 const app = express();
 
-// Security HTTP headers
-app.use(helmet());
+// Security HTTP headers (disable strict CSP so Swagger UI loads inline styles/scripts cleanly)
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 // Disable ETag on API to prevent 304 caching issues in Single Page Applications
 app.set('etag', false);
@@ -95,6 +102,39 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 app.use('/api/v1/auth/login', authLimiter);
+
+// Swagger API Documentation UI & Raw JSON endpoints
+const swaggerOptions = {
+  customSiteTitle: 'Employee Request Management API Docs',
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info { margin: 25px 0 }
+    .swagger-ui .scheme-container { margin: 15px 0; padding: 15px 0 }
+  `,
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    docExpansion: 'list',
+    filter: true,
+  },
+};
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
+
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+app.get('/api/v1/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// Convenient redirects
+app.get('/docs', (req, res) => res.redirect('/api-docs'));
+app.get('/', (req, res) => res.redirect('/api-docs'));
 
 // API Versioned Routes
 app.use('/api/v1', apiRoutes);
