@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DEMO_USERS, ROLES } from '../constants';
+import { loginApi, logoutApi, getMeApi } from '../services/authApi';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Default to null so user lands on login page, or retrieve from localStorage
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('erm_auth_user');
     if (saved) {
@@ -18,53 +18,92 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(!!currentUser);
+  const [loading, setLoading] = useState(false);
 
+  // Sync token & user profile
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('erm_auth_user', JSON.stringify(currentUser));
       setIsAuthenticated(true);
     } else {
       localStorage.removeItem('erm_auth_user');
+      localStorage.removeItem('erm_token');
       setIsAuthenticated(false);
     }
   }, [currentUser]);
 
-  // Login handler
-  const login = (email, password) => {
-    // Find matching demo user by email or fallback to demo employee
-    const matched = DEMO_USERS.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase()
-    );
-    if (matched) {
-      setCurrentUser(matched);
-      return { success: true, user: matched };
+  // Attempt login via real backend API first, with fallback to demo accounts
+  const login = async (email, password) => {
+    setLoading(true);
+    try {
+      const res = await loginApi(email, password);
+      if (res && res.user) {
+        const userWithAvatar = {
+          ...res.user,
+          avatar:
+            res.user.avatar ||
+            (res.user.role === ROLES.ADMIN
+              ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'
+              : res.user.role === ROLES.MANAGER
+              ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'
+              : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'),
+        };
+        if (res.token) {
+          localStorage.setItem('erm_token', res.token);
+        }
+        setCurrentUser(userWithAvatar);
+        return { success: true, user: userWithAvatar };
+      }
+    } catch (err) {
+      console.warn('[AuthContext] Backend login failed, using demo fallback:', err.message);
+
+      // Demo fallback so testing works in all network environments
+      const matched = DEMO_USERS.find(
+        (u) => u.email.toLowerCase() === email.toLowerCase()
+      );
+      if (matched) {
+        setCurrentUser(matched);
+        return { success: true, user: matched };
+      }
+      const customUser = {
+        id: `u-${Date.now()}`,
+        name: email.split('@')[0],
+        email,
+        role: ROLES.EMPLOYEE,
+        department: 'Engineering',
+        employeeId: 'EMP-999',
+        managerId: 'u-mgr-1',
+        managerName: 'David Vance (Manager)',
+        isActive: true,
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      };
+      setCurrentUser(customUser);
+      return { success: true, user: customUser };
+    } finally {
+      setLoading(false);
     }
-    // Generic fallback for custom email during demo
-    const customUser = {
-      id: `u-${Date.now()}`,
-      name: email.split('@')[0],
-      email,
-      role: ROLES.EMPLOYEE,
-      department: 'Engineering',
-      employeeId: 'EMP-999',
-      managerId: 'u-mgr-1',
-      managerName: 'David Vance (Manager)',
-      isActive: true,
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  };
+
+  // Switch demo account directly for fast interview evaluation
+  const switchDemoRole = async (role) => {
+    const demoCredentials = {
+      [ROLES.ADMIN]: { email: 'admin@enterprise.com', password: 'Password123!' },
+      [ROLES.MANAGER]: { email: 'manager@enterprise.com', password: 'Password123!' },
+      [ROLES.EMPLOYEE]: { email: 'employee@enterprise.com', password: 'Password123!' },
     };
-    setCurrentUser(customUser);
-    return { success: true, user: customUser };
-  };
 
-  // Switch demo account directly for fast interview verification
-  const switchDemoRole = (role) => {
-    const target = DEMO_USERS.find((u) => u.role === role);
-    if (target) {
-      setCurrentUser(target);
+    const creds = demoCredentials[role];
+    if (creds) {
+      await login(creds.email, creds.password);
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await logoutApi();
+    } catch (e) {
+      // ignore
+    }
     setCurrentUser(null);
   };
 
@@ -73,6 +112,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         currentUser,
         isAuthenticated,
+        loading,
         role: currentUser?.role || null,
         isAdmin: currentUser?.role === ROLES.ADMIN,
         isManager: currentUser?.role === ROLES.MANAGER,
@@ -94,4 +134,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

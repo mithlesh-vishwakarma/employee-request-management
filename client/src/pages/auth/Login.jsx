@@ -6,23 +6,23 @@ import { Layers, ShieldCheck, ArrowRight, Lock, Mail } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('admin@enterprise.com');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('Password123!');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    const result = login(email, password);
-    if (result.success) {
+    const result = await login(email, password);
+    if (result?.success) {
       redirectToRoleDashboard(result.user.role);
     }
   };
 
-  const handleQuickLogin = (demoUser) => {
+  const handleQuickLogin = async (demoUser) => {
     setEmail(demoUser.email);
-    setPassword('password123');
-    const result = login(demoUser.email, 'password123');
-    if (result.success) {
+    setPassword('Password123!');
+    const result = await login(demoUser.email, 'Password123!');
+    if (result?.success) {
       redirectToRoleDashboard(result.user.role);
     }
   };
