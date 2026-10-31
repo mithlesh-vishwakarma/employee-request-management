@@ -26,21 +26,43 @@ app.use('/api', (req, res, next) => {
 });
 
 // CORS Configuration
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+const rawClientUrl = process.env.CLIENT_URL || '';
+const configuredOrigins = rawClientUrl
+  .split(',')
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const defaultLocalOrigins = [
+  'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:5174',
 ];
 
+const allowedOrigins = Array.from(new Set([...configuredOrigins, ...defaultLocalOrigins]));
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow requests with no origin (like mobile apps or curl)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like curl, Postman, server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+
+      // Check explicit allowed origins or any Vercel deployment preview / production domain
+      const isAllowed =
+        allowedOrigins.includes(normalizedOrigin) ||
+        normalizedOrigin.endsWith('.vercel.app') ||
+        normalizedOrigin.endsWith('.onrender.com') ||
+        process.env.NODE_ENV !== 'production';
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive in dev mode for testing convenience
+        callback(new Error(`CORS blocked for origin: ${origin}`));
       }
     },
     credentials: true,

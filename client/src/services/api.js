@@ -1,7 +1,33 @@
 import axios from 'axios';
 
+const resolveBaseUrl = () => {
+  // Support both VITE_API_BASE_URL and API_BASE_URL
+  const rawUrl =
+    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.API_BASE_URL ||
+    import.meta.env.VITE_API_URL ||
+    '';
+
+  let url = (typeof rawUrl === 'string' ? rawUrl : '').trim();
+
+  // If no env var provided, fallback to localhost for development
+  if (!url) {
+    return 'http://localhost:5000/api/v1';
+  }
+
+  // Strip trailing slashes
+  url = url.replace(/\/+$/, '');
+
+  // Automatically ensure /api/v1 prefix is appended if user gave root domain
+  if (!url.endsWith('/api/v1')) {
+    url = `${url}/api/v1`;
+  }
+
+  return url;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1',
+  baseURL: resolveBaseUrl(),
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

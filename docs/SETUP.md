@@ -31,7 +31,7 @@ employee-request-management/
    ```
 3. Set environment variables (`.env`):
    ```env
-   VITE_API_BASE_URL=http://localhost:5000/api/v1
+   API_BASE_URL=http://localhost:5000/api/v1
    ```
 4. Start dev server:
    ```bash
