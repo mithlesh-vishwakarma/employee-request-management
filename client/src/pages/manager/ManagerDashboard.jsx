@@ -29,17 +29,21 @@ const ManagerDashboard = () => {
   const [inspectingRequest, setInspectingRequest] = useState(null);
 
   // Filter requests specifically for this manager's team
-  const currentUserId = String(currentUser?._id || currentUser?.id);
+  const currentUserId = String(currentUser?._id || currentUser?.id || '');
   const teamRequests = requests.filter(
-    (r) => !r.managerId || String(r.managerId) === currentUserId
+    (r) => !r.managerId || String(r.managerId?._id || r.managerId) === currentUserId
   );
-  const myTeam = users.filter(
-    (u) => String(u.managerId) === currentUserId && u.isActive
-  );
+  const displayRequests = teamRequests.length > 0 ? teamRequests : requests;
 
-  const pendingRequests = teamRequests.filter((r) => r.status === REQUEST_STATUS.PENDING);
-  const approvedRequests = teamRequests.filter((r) => r.status === REQUEST_STATUS.APPROVED);
-  const rejectedRequests = teamRequests.filter((r) => r.status === REQUEST_STATUS.REJECTED);
+  const filteredTeam = users.filter((u) => {
+    const isTeamMember = !u.managerId || String(u.managerId) === currentUserId;
+    return isTeamMember && u.isActive !== false;
+  });
+  const myTeam = filteredTeam.length > 0 ? filteredTeam : users;
+
+  const pendingRequests = displayRequests.filter((r) => r.status === REQUEST_STATUS.PENDING);
+  const approvedRequests = displayRequests.filter((r) => r.status === REQUEST_STATUS.APPROVED);
+  const rejectedRequests = displayRequests.filter((r) => r.status === REQUEST_STATUS.REJECTED);
 
   // Overdue pending (>24h)
   const overdueRequests = pendingRequests.filter((r) => isOverdue24h(r.submittedAt, r.status));

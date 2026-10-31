@@ -14,6 +14,17 @@ const app = express();
 // Security HTTP headers
 app.use(helmet());
 
+// Disable ETag on API to prevent 304 caching issues in Single Page Applications
+app.set('etag', false);
+
+// Prevent caching on dynamic API endpoints
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 // CORS Configuration
 const allowedOrigins = [
   process.env.CLIENT_URL || 'http://localhost:5173',

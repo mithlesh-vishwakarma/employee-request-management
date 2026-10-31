@@ -156,10 +156,14 @@ export const RequestProvider = ({ children }) => {
               role: u.role,
               employeeId: u.employeeId,
               department: u.department,
-              managerId: currentUser.id || currentUser._id,
+              managerId: u.managerId?._id || u.managerId || currentUser._id || currentUser.id,
               managerName: currentUser.name,
-              isActive: u.isActive,
-              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              isActive: u.isActive !== false,
+              avatar:
+                u.avatar ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  u.name
+                )}&background=3b82f6&color=fff`,
             }))
           );
         }

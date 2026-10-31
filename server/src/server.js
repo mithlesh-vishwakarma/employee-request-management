@@ -38,16 +38,16 @@ const startServer = async () => {
       console.log(`====================================================`);
     });
 
-    // Handle Unhandled Promise Rejections
+    // Handle Unhandled Promise Rejections without exiting the server
     process.on('unhandledRejection', (err) => {
-      console.error('[Process] Unhandled Rejection:', err);
-      server.close(() => process.exit(1));
+      console.error('[Process] Unhandled Rejection:', err?.message || err);
+      if (err?.stack) console.error(err.stack);
     });
 
     // Handle Uncaught Exceptions
     process.on('uncaughtException', (err) => {
-      console.error('[Process] Uncaught Exception:', err);
-      process.exit(1);
+      console.error('[Process] Uncaught Exception:', err?.message || err);
+      if (err?.stack) console.error(err.stack);
     });
   } catch (err) {
     console.error('[Server] Critical startup failure:', err);

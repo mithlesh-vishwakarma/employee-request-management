@@ -219,7 +219,7 @@ export const getAllManagers = async () => {
 
 export const getManagerTeam = async (managerId) => {
   return await User.find({ managerId, isActive: true })
-    .select('name email department employeeId role createdAt')
+    .select('-password')
     .sort({ name: 1 });
 };
 

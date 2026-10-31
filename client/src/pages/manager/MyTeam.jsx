@@ -7,8 +7,14 @@ const MyTeam = () => {
   const { currentUser } = useAuth();
   const { users, requests } = useRequests();
 
-  const currentUserId = String(currentUser?._id || currentUser?.id);
-  const myTeam = users.filter((u) => String(u.managerId) === currentUserId && u.isActive);
+  const currentUserId = String(currentUser?._id || currentUser?.id || '');
+  const filteredTeam = users.filter((u) => {
+    const isTeamMember = !u.managerId || String(u.managerId) === currentUserId;
+    return isTeamMember && u.isActive !== false;
+  });
+
+  // Fallback to all loaded users if already scoped to this manager
+  const displayTeam = filteredTeam.length > 0 ? filteredTeam : users;
 
   return (
     <div className="space-y-6">
@@ -22,7 +28,7 @@ const MyTeam = () => {
 
       {/* Grid of Team Members */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {myTeam.map((emp) => {
+        {displayTeam.map((emp) => {
           const empId = String(emp.id || emp._id);
           const empRequests = requests.filter((r) => String(r.employeeId) === empId);
           const empPending = empRequests.filter((r) => r.status === 'pending').length;
@@ -34,7 +40,7 @@ const MyTeam = () => {
             >
               <div className="flex items-start gap-3">
                 <img
-                  src={emp.avatar}
+                  src={emp.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.name)}&background=3b82f6&color=fff`}
                   alt={emp.name}
                   className="w-12 h-12 rounded-full object-cover border-2 border-indigo-100"
                 />
@@ -77,7 +83,7 @@ const MyTeam = () => {
         })}
       </div>
 
-      {myTeam.length === 0 && (
+      {displayTeam.length === 0 && (
         <div className="py-16 text-center bg-white rounded-2xl border border-slate-200">
           <p className="text-slate-500 text-sm">No employees currently assigned to your team.</p>
         </div>
