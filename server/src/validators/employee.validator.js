@@ -19,6 +19,7 @@ export const updateEmployeeSchema = z.object({
   body: z.object({
     name: z.string().min(2).trim().optional(),
     email: z.string().email().trim().toLowerCase().optional(),
+    password: z.string().min(6, 'Password must be at least 6 characters').optional(),
     role: z.enum([ROLES.ADMIN, ROLES.MANAGER, ROLES.EMPLOYEE]).optional(),
     department: z.string().min(2).trim().optional(),
     managerId: z.string().trim().nullable().optional(),

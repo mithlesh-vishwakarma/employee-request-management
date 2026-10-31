@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import { DEPARTMENTS, ROLES } from '../../constants';
 import { useRequests } from '../../context/RequestContext';
+import { Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
 
 const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
   const { users, addEmployee, updateEmployee } = useRequests();
@@ -9,11 +10,13 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     role: ROLES.EMPLOYEE,
     department: DEPARTMENTS[0],
     managerId: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
   const managers = users.filter((u) => u.role === ROLES.MANAGER && u.isActive);
@@ -23,6 +26,7 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
       setFormData({
         name: employeeToEdit.name || '',
         email: employeeToEdit.email || '',
+        password: '',
         role: employeeToEdit.role || ROLES.EMPLOYEE,
         department: employeeToEdit.department || DEPARTMENTS[0],
         managerId: employeeToEdit.managerId || '',
@@ -31,11 +35,13 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
       setFormData({
         name: '',
         email: '',
+        password: 'Password123!',
         role: ROLES.EMPLOYEE,
         department: DEPARTMENTS[0],
         managerId: managers[0]?.id || '',
       });
     }
+    setShowPassword(false);
     setErrors({});
   }, [employeeToEdit, isOpen]);
 
@@ -47,6 +53,13 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errs.email = 'Enter a valid email address';
     }
+
+    if (!employeeToEdit && !formData.password.trim()) {
+      errs.password = 'Initial password is required';
+    } else if (formData.password && formData.password.length < 6) {
+      errs.password = 'Password must be at least 6 characters';
+    }
+
     if (formData.role === ROLES.EMPLOYEE && !formData.managerId) {
       errs.managerId = 'Assigning a direct manager is recommended for employees';
     }
@@ -60,9 +73,27 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
 
     try {
       if (employeeToEdit) {
-        await updateEmployee(employeeToEdit.id || employeeToEdit._id, formData);
+        const payload = {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+          department: formData.department,
+          managerId: formData.role === ROLES.MANAGER ? null : formData.managerId || null,
+        };
+        if (formData.password && formData.password.trim()) {
+          payload.password = formData.password.trim();
+        }
+        await updateEmployee(employeeToEdit.id || employeeToEdit._id, payload);
       } else {
-        await addEmployee(formData);
+        const payload = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password || 'Password123!',
+          role: formData.role,
+          department: formData.department,
+          managerId: formData.role === ROLES.MANAGER ? null : formData.managerId || null,
+        };
+        await addEmployee(payload);
       }
       onClose();
     } catch (err) {
@@ -74,7 +105,7 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={employeeToEdit ? 'Edit Account Details' : 'Create New Employee Account'}
+      title={employeeToEdit ? 'Edit Account Details' : 'Create New Personnel Account'}
       maxWidth="max-w-lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -110,6 +141,49 @@ const EmployeeFormModal = ({ isOpen, onClose, employeeToEdit = null }) => {
             }`}
           />
           {errors.email && <p className="text-rose-600 mt-1">{errors.email}</p>}
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5 text-indigo-600" />
+              <span>{employeeToEdit ? 'Reset Password (Optional)' : 'Account Password'}</span>
+              {!employeeToEdit && <span className="text-rose-500">*</span>}
+            </label>
+            <span className="text-[10px] text-slate-400">Min 6 characters</span>
+          </div>
+
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder={employeeToEdit ? 'Leave blank to retain current password' : 'Enter account password'}
+              className={`w-full pl-3.5 pr-10 py-2.5 rounded-lg border bg-white focus:outline-none focus:ring-2 text-xs ${
+                errors.password
+                  ? 'border-rose-300 focus:ring-rose-400'
+                  : 'border-slate-200 focus:ring-indigo-500'
+              }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          {errors.password ? (
+            <p className="text-rose-600 mt-1">{errors.password}</p>
+          ) : (
+            <p className="text-[10px] text-slate-400 mt-1">
+              {employeeToEdit
+                ? 'Only fill this if you want to update the user’s login password.'
+                : 'The employee or manager will use this password to sign in.'}
+            </p>
+          )}
         </div>
 
         {/* Role & Department */}

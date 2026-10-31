@@ -118,6 +118,9 @@ export const updateEmployee = async (id, data, actor) => {
   if (data.name) employee.name = data.name;
   if (data.department) employee.department = data.department;
   if (data.role) employee.role = data.role;
+  if (data.password && data.password.trim()) {
+    employee.password = data.password.trim();
+  }
 
   // Manager update check
   if (data.managerId !== undefined) {
