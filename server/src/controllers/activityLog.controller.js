@@ -15,3 +15,4 @@ export const getActivityLogs = async (req, res, next) => {
     next(err);
   }
 };
+

@@ -219,3 +219,4 @@ export const getManagerTeam = async (managerId) => {
     .select('name email department employeeId role createdAt')
     .sort({ name: 1 });
 };
+

@@ -45,3 +45,4 @@ export const sendTokenResponse = (user, statusCode, res, message = 'Success') =>
     user: userSafe,
   });
 };
+

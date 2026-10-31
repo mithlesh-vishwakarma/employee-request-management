@@ -62,3 +62,4 @@ export const getActivityLogs = async (query = {}) => {
     },
   };
 };
+

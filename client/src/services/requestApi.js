@@ -44,3 +44,4 @@ export const getCommentsApi = async (id) => {
   const response = await api.get(`/requests/${id}/comments`);
   return response.data;
 };
+

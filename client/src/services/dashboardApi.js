@@ -24,3 +24,4 @@ export const triggerReminderJobApi = async () => {
   const response = await api.post('/jobs/trigger-reminders');
   return response.data;
 };
+

@@ -31,3 +31,4 @@ export const addCommentSchema = z.object({
     message: z.string().min(1, 'Comment message cannot be empty').trim(),
   }),
 });
+

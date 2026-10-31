@@ -28,3 +28,4 @@ requestCommentSchema.index({ requestId: 1, createdAt: 1 });
 
 export const RequestComment = mongoose.model('RequestComment', requestCommentSchema);
 export default RequestComment;
+

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 let mongoMemoryServer = null;
 
 export const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/employee_request_management';
+  const uri = process.env.MONGODB_URI;
 
   try {
     const conn = await mongoose.connect(uri, {
@@ -44,3 +44,4 @@ export const closeDB = async () => {
     console.error('[DB] Error during disconnection:', err.message);
   }
 };
+

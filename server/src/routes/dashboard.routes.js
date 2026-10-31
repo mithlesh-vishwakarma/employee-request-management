@@ -13,3 +13,4 @@ router.get('/manager', authorizeRoles(ROLES.MANAGER), dashboardController.getMan
 router.get('/employee', authorizeRoles(ROLES.EMPLOYEE), dashboardController.getEmployeeDashboard);
 
 export default router;
+

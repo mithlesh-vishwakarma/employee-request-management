@@ -41,3 +41,4 @@ reminderLogSchema.index(
 
 export const ReminderLog = mongoose.model('ReminderLog', reminderLogSchema);
 export default ReminderLog;
+

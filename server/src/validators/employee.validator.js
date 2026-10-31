@@ -30,3 +30,4 @@ export const assignManagerSchema = z.object({
     managerId: z.string().min(1, 'Manager ID is required').trim(),
   }),
 });
+

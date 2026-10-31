@@ -80,3 +80,4 @@ export const markAllNotificationsRead = async (userId) => {
 
   return { modifiedCount: result.modifiedCount };
 };
+

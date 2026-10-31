@@ -29,3 +29,4 @@ export class ApiResponse {
 export const successResponse = (res, statusCode = 200, message = 'Success', data = null, pagination = null) => {
   return new ApiResponse(statusCode, message, data, pagination).send(res);
 };
+

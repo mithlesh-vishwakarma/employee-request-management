@@ -59,3 +59,4 @@ router.post(
 router.get('/:id/comments', requestController.getComments);
 
 export default router;
+

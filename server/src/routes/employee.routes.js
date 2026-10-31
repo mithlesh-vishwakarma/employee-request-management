@@ -33,3 +33,4 @@ router.patch(
 router.patch('/:id/status', authorizeRoles(ROLES.ADMIN), employeeController.toggleStatus);
 
 export default router;
+

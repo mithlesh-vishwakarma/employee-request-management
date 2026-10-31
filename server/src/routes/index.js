@@ -31,3 +31,4 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/jobs', jobRoutes);
 
 export default router;
+

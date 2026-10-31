@@ -34,3 +34,4 @@ export const assignManagerApi = async (employeeId, managerId) => {
   const response = await api.patch(`/managers/${employeeId}/manager`, { managerId });
   return response.data;
 };
+

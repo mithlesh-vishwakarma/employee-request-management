@@ -9,3 +9,4 @@ export const triggerReminders = async (req, res, next) => {
     next(err);
   }
 };
+

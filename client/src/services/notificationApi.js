@@ -19,3 +19,4 @@ export const markAllNotificationsReadApi = async () => {
   const response = await api.patch('/notifications/read-all');
   return response.data;
 };
+

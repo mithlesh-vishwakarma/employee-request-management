@@ -42,3 +42,4 @@ export const markAllRead = async (req, res, next) => {
     next(err);
   }
 };
+
